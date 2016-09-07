@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	
+	<dubbo:application name="${dubbo.application.name}" owner="talor" organization="com.taylor"/>
+
+    <dubbo:registry protocol="${dubbo.registry.protocol}" address="${dubbo.registry.address}" />
+	
+	<dubbo:protocol name="${dubbo.protocol.name}" serialization="kryo" port="${dubbo.protocol.port}" />
+
+    <dubbo:monitor protocol="registry"/>
+   
+    <dubbo:reference id="redisClientService" interface="com.taylor.redis.service.RedisClientService"  group="simple" url="${dubbo.direct.url}" version="${service.version}" />
+    
+    <dubbo:consumer timeout="${dubbo.timeout}"/>
+    
+</beans>
