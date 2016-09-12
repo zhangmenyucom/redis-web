@@ -178,7 +178,7 @@
 			<properties>
 				<!-- 本地直连地址 -->
 				<dubbo.protocol.port>20542</dubbo.protocol.port>
-				<dubbo.direct.url>dubbo://192.168.186.128:20542</dubbo.direct.url>
+				<dubbo.direct.url>dubbo://localhost:20542</dubbo.direct.url>
 				<dubbo.registry.address>192.168.186.128:2181</dubbo.registry.address>
 				<!-- log4j配置 -->
 				<log4j.root.logger>info,DEBUG,stdout,DebugLogFile,CONSOLE</log4j.root.logger>

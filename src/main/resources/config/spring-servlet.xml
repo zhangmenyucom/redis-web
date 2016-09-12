@@ -13,9 +13,8 @@
 		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 		
 	<!-- 自动扫描bean，把作了注解的类转换为bean -->  
-	<context:component-scan base-package="com.taylor.web.shop.action"/>
-
-	<context:annotation-config />
+	<context:component-scan base-package="com.taylor.web.redis.action"/>
+	
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	
     <!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->  

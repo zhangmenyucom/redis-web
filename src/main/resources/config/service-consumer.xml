@@ -13,7 +13,7 @@
 
     <dubbo:monitor protocol="registry"/>
    
-    <dubbo:reference id="redisClientService" interface="com.taylor.redis.service.RedisClientService"  group="simple" url="${dubbo.direct.url}" version="${service.version}" />
+    <dubbo:reference id="redisClientService" interface="com.taylor.redis.service.RedisClientService"  group="sharded" url="${dubbo.direct.url}" version="${service.version}" />
     
     <dubbo:consumer timeout="${dubbo.timeout}"/>
     
