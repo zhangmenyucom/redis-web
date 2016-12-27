@@ -87,7 +87,6 @@ public abstract class AbstractTokenHandler {
      * @throws Exception
      */
     public void postHandle(HttpServletRequest request, HttpServletResponse response, ModelAndView modelAndView, Token token) {
-        String tokenId = null;
         try {
             //生成token并放到结果中,如果modelAndView不为空，则放到modelAndView中；否则，放到request.attribute中
             generateAndSetTokens(request, modelAndView, token);
@@ -149,6 +148,8 @@ public abstract class AbstractTokenHandler {
                 } else {
                     for (int i = 0; i < tokens.length; i++) {
                         request.setAttribute(TokenConstant.TOKEN_ID_PREFIX + (i + 1), tokens[i]);
+                        System.out.println(request.getAttribute("token_1"));
+                        System.out.println(request+"--------handler");
                     }
                 }
             }
@@ -189,11 +190,12 @@ public abstract class AbstractTokenHandler {
 
     private void logRequest(HttpServletRequest request) {
         if (log.isDebugEnabled()) {
-            Map map = request.getParameterMap();
-            Set entries = map.entrySet();
+            Map<?, ?> map = request.getParameterMap();
+            Set<?> entries = map.entrySet();
             for (Object entry : entries) {
                 if (entry instanceof Map.Entry) {
-                    Map.Entry reqEntry = (Map.Entry) entry;
+                    @SuppressWarnings("rawtypes")
+					Map.Entry reqEntry = (Map.Entry) entry;
                     log.debug("request key:{},value:{}", reqEntry.getKey(), reqEntry.getValue());
                 }
             }

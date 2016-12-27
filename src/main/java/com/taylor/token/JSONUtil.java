@@ -23,6 +23,7 @@ public class JSONUtil {
 		return JSON.toJSONString(data, jsonFeatures);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> T fromJson(String json, Class<?> clazz) {
 		if (objectMapper == null) {
 			objectMapper = new ObjectMapper();

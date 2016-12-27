@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.taylor.redis.service.RedisClientService;
+import com.taylor.token.Token;
+import com.taylor.token.TokenUtil;
 
 /**
  * @ClassName: ShopUserAction
- * @Function: 用户控制层.
- * @date: 2016年4月18日 上午1:24:55
+ * @Function: ç¨æ·æ§å¶å±.
+ * @date: 2016å¹´4æ18æ¥ ä¸å1:24:55
  * @author Taylor
  */
 @Controller
@@ -37,14 +39,14 @@ public class RedisController {
 
 	/**
 	 * 
-	 * @desc showValueByKey(这里用一句话描述这个方法的作用)
+	 * @desc showValueByKey(è¿éç¨ä¸å¥è¯æè¿°è¿ä¸ªæ¹æ³çä½ç¨)
 	 * @param map
 	 * @param key
 	 * @param request
 	 * @param response
 	 * @return
 	 * @author xiaolu.zhang
-	 * @date 2016年9月1日 下午10:30:32
+	 * @date 2016å¹´9æ1æ¥ ä¸å10:30:32
 	 */
 	@RequestMapping("show")
 	public String showValueByKey(ModelMap map, @RequestParam(value = "key", defaultValue = "") String key, HttpServletRequest request, HttpServletResponse response) {
@@ -52,23 +54,23 @@ public class RedisController {
 			if (!"".equals(key)) {
 				map.put("show", redisClientService.get(key));
 			} else {
-				map.put("show", "没有参数");
+				map.put("show", "æ²¡æåæ°");
 			}
 		} catch (Exception e) {
-			LOGGER.error("调用RedisController.show出错", e);
+			LOGGER.error("è°ç¨RedisController.showåºé", e);
 		}
 		return "redis/index";
 	}
 
 	/**
-	 * @desc setKeyValue(向redis插入key-value)
+	 * @desc setKeyValue(åredisæå¥key-value)
 	 * @param map
 	 * @param key
 	 * @param value
 	 * @param request
 	 * @param response
 	 * @author xiaolu.zhang
-	 * @date 2016年9月1日 下午11:06:00
+	 * @date 2016å¹´9æ1æ¥ ä¸å11:06:00
 	 */
 	@RequestMapping("set")
 	public String setKeyValue(ModelMap map, @RequestParam(value = "key", defaultValue = "") String key, @RequestParam(value = "value", defaultValue = "") String value, HttpServletRequest request, HttpServletResponse response) {
@@ -77,60 +79,78 @@ public class RedisController {
 				redisClientService.set(key, value);
 			}
 		} catch (Exception e) {
-			LOGGER.error("调用RedisController.show出错", e);
+			LOGGER.error("è°ç¨RedisController.showåºé", e);
 		}
 		return "redis/index";
 	}
 
 	/**
-	 * @desc distributeLockTest(这里用一句话描述这个方法的作用)
+	 * @desc distributeLockTest(è¿éç¨ä¸å¥è¯æè¿°è¿ä¸ªæ¹æ³çä½ç¨)
 	 * @param request
 	 * @param response
 	 * @return
 	 * @author xiaolu.zhang
-	 * @date 2016年12月1日 上午11:06:27
+	 * @date 2016å¹´12æ1æ¥ ä¸å11:06:27
 	 */
 	@RequestMapping("/test")
 	@ResponseBody
 	public String distributeLockTest(@RequestParam("key") String key) {
-		/** 设置锁值为当前时间戳 **/
+		/** è®¾ç½®éå¼ä¸ºå½åæ¶é´æ³ **/
 		Long value = System.currentTimeMillis();
-		/** getset命令：设置新值并返回原来的值，如果原来key不存在则返回null **/
+		/** getsetå½ä»¤ï¼è®¾ç½®æ°å¼å¹¶è¿ååæ¥çå¼ï¼å¦æåæ¥keyä¸å­å¨åè¿ånull **/
 		String oldValue = redisClientService.getSet(key, value + "");
-		/** 不存在则拥有锁 **/
+		/** ä¸å­å¨åæ¥æé **/
 		if (null == oldValue) {
-			/** 设置有效时间为1秒 **/
+			/** è®¾ç½®æææ¶é´ä¸º1ç§ **/
 			redisClientService.expire(key, 1);
 
-			/** 处理业务逻辑 **/
+			/** å¤çä¸å¡é»è¾ **/
 			{
 				System.out.println("doBusiness......");
 			}
-			/** 处理完业务逻辑，释放锁 **/
+			/** å¤çå®ä¸å¡é»è¾ï¼éæ¾é **/
 			redisClientService.del(key);
 			success_count.incrementAndGet();
-			System.out.println("成功次数：" + success_count.get());
+			System.out.println("æåæ¬¡æ°ï¼" + success_count.get());
 			return "sucess";
 		} else {
 			Long timeGap = System.currentTimeMillis() - Long.parseLong(oldValue);
-			/** 业务超时,释放锁 **/
+			/** ä¸å¡è¶æ¶,éæ¾é **/
 			if (timeGap > 500) {
 				redisClientService.del(key);
 			}
 			fail_count++;
-			System.out.println("重试次数：" + fail_count);
-			 return "fail";
-			//return this.distributeLockTest(key);
+			System.out.println("éè¯æ¬¡æ°ï¼" + fail_count);
+			return "fail";
+			// return this.distributeLockTest(key);
 		}
 
 	}
-	
-/*	@RequestMapping("/queue")
+
+	@Token(remove = true)
+	@RequestMapping("/token")
 	@ResponseBody
-	public String redusQueueTest(String message) {
-		
-		redisClientService.lpush("list", "message");
-		redisClientService.blpop(message)
-		
-	}*/
+	public String tokenTest(String message, HttpServletRequest request) {
+		if (TokenUtil.isRepeatedSubmission(request)) {
+			return "do not repeat submit";
+		}
+		try {
+			TokenUtil.addRemoveTokenFlag(request);
+		} catch (Throwable t) {
+		}
+		return request.getParameter("token");
+	}
+
+	@Token(generate = 1)
+	@RequestMapping("/token_view")
+	public String tokenView(HttpServletRequest request, HttpServletResponse response) {
+		return "/redis/token_view";
+	}
+
+	@Token(generate = 1)
+	@RequestMapping("/token_ajax")
+	@ResponseBody
+	public String tokenAjax(HttpServletRequest request, HttpServletResponse response) {
+		return "haha";
+	}
 }

@@ -1,15 +1,17 @@
 package com.taylor.token;
 
-import com.taylor.redis.service.RedisClientService;
-import lombok.extern.log4j.Log4j2;
+import java.io.IOException;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.Map;
+import com.taylor.redis.service.RedisClientService;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * token 拦截器，token保存在redis中
@@ -109,7 +111,7 @@ public class RedisTokenHandler extends AbstractTokenHandler {
         if (tokenKey == null) {
             try {
                 String requestJson = IOUtils.toString(request.getInputStream(), ENCODING);
-                Map properties = JSONUtil.fromJson(requestJson, Map.class);
+                Map<?, ?> properties = JSONUtil.fromJson(requestJson, Map.class);
                 return (String) properties.get(TokenConstant.REQUEST_KEY_PREFIX);
             } catch (IOException e) {
                 log.error(e);

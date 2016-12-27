@@ -9,42 +9,46 @@
 
 	<!-- 自动扫描bean，把作了注解的类转换为bean -->
 	<context:component-scan base-package="com.taylor.web.redis.action" />
-
-	<mvc:interceptors>
-		<mvc:interceptor>
-			<mvc:mapping path="/mobile/*/order/takeout/submit" />
-			<bean class="com.taylor.token.RedisTokenInterceptor" />
-		</mvc:interceptor>
-	</mvc:interceptors>
-
-	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
-
-	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+	<context:component-scan base-package="com.taylor.token" />
+	
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+	<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+	
+		<mvc:interceptors>
+			<mvc:interceptor>
+				<mvc:mapping path="/**" />
+				<bean class="com.taylor.token.RedisTokenInterceptor" />
+			</mvc:interceptor>
+		</mvc:interceptors>
 
-	<bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
-	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
-		<property name="messageConverters">
-			<list>
-				<ref bean="jacksonMessageConverter" />    <!-- 注册JSON Converter -->
-			</list>
-		</property>
-	</bean>
-	<!-- velocity相关配置 start -->
-	<bean id="velocityViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
-		<property name="cache" value="false" />
-		<property name="order" value="1"></property>
-		<property name="prefix" value="" />
-		<property name="suffix" value=".vm" />
-		<property name="contentType">
-			<value>text/html;charset=UTF-8</value>
-		</property>
-		<property name="exposeSpringMacroHelpers" value="true" />
-		<property name="exposeSessionAttributes" value="true" />
-	</bean>
-	<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
-		<property name="configLocation" value="/WEB-INF/classes/config/velocity.properties" />
-		<property name="resourceLoaderPath" value="/WEB-INF/vm" />
-	</bean>
-	<!-- velocity相关配置 end -->
+		<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+		<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter"/>
+		<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
+
+
+		<bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" />
+		<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+			<property name="messageConverters">
+				<list>
+					<ref bean="jacksonMessageConverter" />    <!-- 注册JSON Converter -->
+				</list>
+			</property>
+		</bean>
+		<!-- velocity相关配置 start -->
+		<bean id="velocityViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+			<property name="cache" value="false" />
+			<property name="order" value="1"></property>
+			<property name="prefix" value="" />
+			<property name="suffix" value=".vm" />
+			<property name="contentType">
+				<value>text/html;charset=UTF-8</value>
+			</property>
+			<property name="exposeSpringMacroHelpers" value="true" />
+			<property name="exposeSessionAttributes" value="true" />
+		</bean>
+		<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+			<property name="configLocation" value="/WEB-INF/classes/config/velocity.properties" />
+			<property name="resourceLoaderPath" value="/WEB-INF/vm" />
+		</bean>
+		<!-- velocity相关配置 end -->
 </beans>
