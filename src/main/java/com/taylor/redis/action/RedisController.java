@@ -1,4 +1,4 @@
-package com.taylor.web.redis.action;
+package com.taylor.redis.action;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,16 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.taylor.redis.annotation.RedisCacheGet;
 import com.taylor.redis.service.RedisClientService;
 import com.taylor.token.Token;
 import com.taylor.token.TokenUtil;
 
-/**
- * @ClassName: ShopUserAction
- * @Function: ç¨æ·æ§å¶å±.
- * @date: 2016å¹´4æ18æ¥ ä¸å1:24:55
- * @author Taylor
- */
 @Controller
 @RequestMapping("/redis/*")
 public class RedisController {
@@ -37,17 +32,7 @@ public class RedisController {
 
 	public static int version = 0;
 
-	/**
-	 * 
-	 * @desc showValueByKey(è¿éç¨ä¸å¥è¯æè¿°è¿ä¸ªæ¹æ³çä½ç¨)
-	 * @param map
-	 * @param key
-	 * @param request
-	 * @param response
-	 * @return
-	 * @author xiaolu.zhang
-	 * @date 2016å¹´9æ1æ¥ ä¸å10:30:32
-	 */
+
 	@RequestMapping("show")
 	public String showValueByKey(ModelMap map, @RequestParam(value = "key", defaultValue = "") String key, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -62,16 +47,6 @@ public class RedisController {
 		return "redis/index";
 	}
 
-	/**
-	 * @desc setKeyValue(åredisæå¥key-value)
-	 * @param map
-	 * @param key
-	 * @param value
-	 * @param request
-	 * @param response
-	 * @author xiaolu.zhang
-	 * @date 2016å¹´9æ1æ¥ ä¸å11:06:00
-	 */
 	@RequestMapping("set")
 	public String setKeyValue(ModelMap map, @RequestParam(value = "key", defaultValue = "") String key, @RequestParam(value = "value", defaultValue = "") String value, HttpServletRequest request, HttpServletResponse response) {
 		try {
@@ -84,45 +59,30 @@ public class RedisController {
 		return "redis/index";
 	}
 
-	/**
-	 * @desc distributeLockTest(è¿éç¨ä¸å¥è¯æè¿°è¿ä¸ªæ¹æ³çä½ç¨)
-	 * @param request
-	 * @param response
-	 * @return
-	 * @author xiaolu.zhang
-	 * @date 2016å¹´12æ1æ¥ ä¸å11:06:27
-	 */
+
 	@RequestMapping("/test")
 	@ResponseBody
 	public String distributeLockTest(@RequestParam("key") String key) {
-		/** è®¾ç½®éå¼ä¸ºå½åæ¶é´æ³ **/
 		Long value = System.currentTimeMillis();
-		/** getsetå½ä»¤ï¼è®¾ç½®æ°å¼å¹¶è¿ååæ¥çå¼ï¼å¦æåæ¥keyä¸å­å¨åè¿ånull **/
 		String oldValue = redisClientService.getSet(key, value + "");
-		/** ä¸å­å¨åæ¥æé **/
 		if (null == oldValue) {
-			/** è®¾ç½®æææ¶é´ä¸º1ç§ **/
 			redisClientService.expire(key, 1);
 
-			/** å¤çä¸å¡é»è¾ **/
 			{
 				System.out.println("doBusiness......");
 			}
-			/** å¤çå®ä¸å¡é»è¾ï¼éæ¾é **/
 			redisClientService.del(key);
 			success_count.incrementAndGet();
-			System.out.println("æåæ¬¡æ°ï¼" + success_count.get());
+			System.out.println("成功次数：" + success_count.get());
 			return "sucess";
 		} else {
 			Long timeGap = System.currentTimeMillis() - Long.parseLong(oldValue);
-			/** ä¸å¡è¶æ¶,éæ¾é **/
 			if (timeGap > 500) {
 				redisClientService.del(key);
 			}
 			fail_count++;
-			System.out.println("éè¯æ¬¡æ°ï¼" + fail_count);
+			System.out.println("失败次数："+fail_count);
 			return "fail";
-			// return this.distributeLockTest(key);
 		}
 
 	}
@@ -152,5 +112,13 @@ public class RedisController {
 	@ResponseBody
 	public String tokenAjax(HttpServletRequest request, HttpServletResponse response) {
 		return "haha";
+	}
+	
+	@RedisCacheGet(key="'test_'+#key")
+	@RequestMapping("/get_key")
+	@ResponseBody
+	public String getKey(HttpServletRequest request,HttpServletResponse response,@RequestParam("key")String key){
+		System.out.println("from redis db");
+		return redisClientService.get(key);
 	}
 }
