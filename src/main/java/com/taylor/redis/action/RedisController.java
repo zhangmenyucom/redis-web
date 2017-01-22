@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.taylor.redis.annotation.RedisCacheClean;
 import com.taylor.redis.annotation.RedisCacheGet;
 import com.taylor.redis.service.RedisClientService;
 import com.taylor.token.Token;
@@ -31,7 +32,6 @@ public class RedisController {
 	public static volatile int fail_count = 0;
 
 	public static int version = 0;
-
 
 	@RequestMapping("show")
 	public String showValueByKey(ModelMap map, @RequestParam(value = "key", defaultValue = "") String key, HttpServletRequest request, HttpServletResponse response) {
@@ -59,7 +59,6 @@ public class RedisController {
 		return "redis/index";
 	}
 
-
 	@RequestMapping("/test")
 	@ResponseBody
 	public String distributeLockTest(@RequestParam("key") String key) {
@@ -81,7 +80,7 @@ public class RedisController {
 				redisClientService.del(key);
 			}
 			fail_count++;
-			System.out.println("失败次数："+fail_count);
+			System.out.println("失败次数：" + fail_count);
 			return "fail";
 		}
 
@@ -107,18 +106,18 @@ public class RedisController {
 		return "/redis/token_view";
 	}
 
-	@Token(generate = 1)
-	@RequestMapping("/token_ajax")
-	@ResponseBody
-	public String tokenAjax(HttpServletRequest request, HttpServletResponse response) {
-		return "haha";
-	}
-	
-	@RedisCacheGet(key="'test_'+#key")
+	@RedisCacheGet(key = "'test_'+#key")
 	@RequestMapping("/get_key")
 	@ResponseBody
-	public String getKey(HttpServletRequest request,HttpServletResponse response,@RequestParam("key")String key){
+	public String getKey(HttpServletRequest request, HttpServletResponse response, @RequestParam("key") String key) {
 		System.out.println("from redis db");
 		return redisClientService.get(key);
+	}
+
+	@RequestMapping("/clean_key")
+	@RedisCacheClean(key = "'test_'+#key")
+	@ResponseBody
+	public String setKey(HttpServletRequest request, HttpServletResponse response, @RequestParam("key") String key) {
+		return "clear up";
 	}
 }
